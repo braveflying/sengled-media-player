@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+    <com.sengled.media.player.widget.RecyclerViewWithEmpty
+        android:id="@+id/media_video_realtime_view"
+        android:layout_width="match_parent"
+        android:layout_weight="2"
+        android:layout_height="wrap_content"/>
+
+    <include layout="@layout/media_empty_layout"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:layout_marginBottom="5dp"
+        android:layout_weight="1">
+        <TextView
+            android:id="@+id/one_grid_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:layout_margin="8dp"
+            android:textColor="@android:color/black"
+            android:background="@drawable/sel_hint_check"
+            android:text="1"/>
+
+        <TextView
+            android:id="@+id/four_grid_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_margin="8dp"
+            android:textColor="@android:color/black"
+            android:background="@drawable/sel_hint_check"
+            android:text="4"/>
+
+        <LinearLayout
+            android:layout_weight="2"
+            android:background="@android:color/transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <com.sengled.media.player.widget.PageIndicator
+                android:id="@+id/pageindicator"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:background="@android:color/transparent"
+                android:gravity="center"
+                android:layout_marginBottom="20dp"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/nine_grid_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_margin="8dp"
+            android:gravity="center"
+            android:textColor="@android:color/black"
+            android:background="@drawable/sel_hint_check"
+            android:text="9"/>
+        <TextView
+            android:id="@+id/sixteen_grid_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_margin="8dp"
+            android:text="16"
+            android:textSize="20sp"
+            android:textColor="@android:color/black"
+            android:background="@drawable/sel_hint_check" />
+        </LinearLayout>
+</LinearLayout>

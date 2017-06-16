@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">SengledMediaPlayer</string>
+    <string name="open">open</string>
+    <string name="close">close</string>
+    
+    <string name="select_realtime_video">选择要预览的设备</string>
+    <string name="start_preview">开始预览</string>
+    <string name="cancel">取消</string>
+    <string name="empty_message">暂时没有数据~</string>
+    <string name="playback_list_is_empty">当前回放列表是空的！</string>
+
+    <string name="company_name">北京生迪网络科技有限公司</string>
+
+    <string-array name="media_menu_array_bak">
+        <item>{cmd_file_video} 我的视频</item>
+        <item>{cmd_filmstrip} 视频预览</item>
+        <item>{cmd_folder_image} 我的截图</item>
+        <item>{cmd_file_image} 图片浏览</item>
+        <item>{cmd_lamp} 我的设备</item>
+        <item>{cmd_alert_circle_outline} About</item>
+    </string-array>
+    <string-array name="media_menu_array">
+        <item>我的视频</item>
+        <item>视频预览</item>
+        <item>我的截图</item>
+        <item>图片浏览</item>
+        <item>我的设备</item>
+        <item>About</item>
+    </string-array>
+</resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:layout_marginBottom="5dp"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/item_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.bjbj.slsijk.player.widget.SLSVideoTextureView
+            android:id="@+id/list_item_video_view"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_gravity="center" />
+
+        <include layout="@layout/media_video_controller_layout" android:id="@+id/media_video_controller_include_id" />
+
+        <include layout="@layout/media_video_preview_list_item_cover_layout" android:id="@+id/media_video_item_cover_include_id" />
+
+        <LinearLayout
+            android:id="@+id/item_loading_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+    </FrameLayout>
+</FrameLayout>

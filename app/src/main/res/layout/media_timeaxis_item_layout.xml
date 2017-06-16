@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="horizontal">
+
+    <View
+        android:id="@+id/media_timeaxis_line"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="72dp"
+        android:background="#A6A6A6" />
+
+    <ImageView
+        android:id="@+id/media_timeaxis_dot"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginLeft="65dp"
+        android:src="@drawable/time_axis_dot" />
+
+    <TextView
+        android:id="@+id/media_timeaxis_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/media_timeaxis_dot"
+        android:layout_marginLeft="10dp"
+        android:text="4:00 pm"
+        android:textSize="12dp" />
+
+    <RelativeLayout
+        android:id="@+id/relative"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:clipChildren="false"
+        android:layout_marginLeft="60dp"
+        android:layout_toRightOf="@id/media_timeaxis_dot" >
+
+        <Button
+            android:id="@+id/media_axis_mark_red"
+            android:layout_width="5dp"
+            android:layout_height="0dp"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:background="@drawable/shape_button_corner"/>
+
+        <Button
+            android:id="@+id/media_axis_mark_green"
+            android:layout_width="5dp"
+            android:layout_height="0dp"
+            android:layout_marginLeft="70dp"
+            android:layout_toRightOf="@id/media_axis_mark_red"
+            android:backgroundTint="@android:color/holo_green_light"
+            android:background="@drawable/shape_button_corner"/>
+
+        <Button
+            android:id="@+id/media_axis_mark_blue"
+            android:gravity="top"
+            android:layout_width="5dp"
+            android:layout_height="0dp"
+            android:layout_toRightOf="@id/media_axis_mark_green"
+            android:layout_marginLeft="70dp"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:background="@drawable/shape_button_corner"/>
+    </RelativeLayout>
+
+</RelativeLayout>
