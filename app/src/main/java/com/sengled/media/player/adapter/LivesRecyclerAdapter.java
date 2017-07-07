@@ -3,6 +3,7 @@ package com.sengled.media.player.adapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -23,6 +24,9 @@ import com.bjbj.slsijk.player.widget.SLSVideoTextureView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.sengled.media.player.R;
+import com.sengled.media.player.activity.TalkbackActivity;
+import com.sengled.media.player.activity.VideoPlaybackActivity;
+import com.sengled.media.player.activity.VideoPlaybackNewActivity;
 import com.sengled.media.player.common.Utils;
 import com.sengled.media.player.entity.Lives;
 import com.sengled.media.player.event.FullscreenEvent;
@@ -64,11 +68,14 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
     public void onBindViewHolder(ViewHolder holder, int position) {
         Lives lives = mLives.get(position);
         holder.descView.setText(lives.getToken());
+        holder.deviceInfoView.setText(lives.getToken());
 
         ControllerClickListener clickListener = new ControllerClickListener(holder, position);
         holder.playBtn.setOnClickListener(clickListener);
         holder.controllerView.setmFullscreenListener(clickListener);
         holder.controllerView.setScreenshotListener(clickListener);
+        holder.playbackBtn.setOnClickListener(clickListener);
+        holder.talkbackBtn.setOnClickListener(clickListener);
 
         Glide.with(mContext)
                 .load(lives.getImage_path())
@@ -154,7 +161,7 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
                 ((Activity)mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             }
 
-            holder.playBtn.setBackgroundResource(R.mipmap.play_button);
+            holder.playBtn.setBackgroundResource(R.mipmap.video_play_btn);
             holder.playBtn.setVisibility(View.VISIBLE);
             holder.errorMsgView.setVisibility(View.VISIBLE);
             holder.errorMsgView.setText("Playback completed, click replay");
@@ -256,9 +263,30 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
                 case R.id.screenshot_btn:
                     screenshotClick(v);
                     break;
+                case R.id.media_video_button_playback:
+                    startPlayback(v);
+                    break;
+                case R.id.media_video_button_talkback:
+                    startTalkback(v);
+                    break;
                 default:
                     // TODO: 2017/4/12
             }
+        }
+
+        private void startTalkback(View v){
+            Intent intent = new Intent();
+            intent.putExtra("videoPath", lives.getStream_addr());
+            intent.putExtra("deviceId", lives.getId());
+            intent.setClass(mContext, TalkbackActivity.class);
+            mContext.startActivity(intent);
+        }
+
+        private void startPlayback(View v){
+            Intent intent = new Intent();
+            intent.putExtra("token", lives.getToken());
+            intent.setClass(mContext, VideoPlaybackActivity.class);
+            mContext.startActivity(intent);
         }
 
         //播放事件
@@ -273,7 +301,7 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
 
         public void fullscreenClick(View v){
             Log.e("full", "full");
-            EventBus.getDefault().post(new FullscreenEvent(holder.itemContainer, position));
+            EventBus.getDefault().post(new FullscreenEvent(holder.itemParentContainer,holder.itemContainer));
 
             if (Utils.getScreenOrientation((Activity) mContext) == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
                 ((Activity)mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -294,6 +322,7 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
         public ViewGroup itemContainer;
+        public ViewGroup itemParentContainer;
 
         public SLSVideoTextureView slsVideoTextureView;
         public View mLoadingView;
@@ -304,14 +333,21 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
         public ImageView coverImageView;
         public ImageButton playBtn;
         public TextView errorMsgView;
+        public ImageButton playbackBtn;
+        public ImageButton talkbackBtn;
+        private TextView deviceInfoView;
 
         public ViewHolder(View view) {
             super(view);
             itemContainer = (ViewGroup) view.findViewById(R.id.item_container);
+            itemParentContainer = (ViewGroup)view.findViewById(R.id.media_player_container);
 
             slsVideoTextureView = (SLSVideoTextureView) view.findViewById(R.id.list_item_video_view);
             mLoadingView = view.findViewById(R.id.item_loading_view);
             coverView = view.findViewById(R.id.media_video_item_cover_include_id);
+            playbackBtn = (ImageButton) view.findViewById(R.id.media_video_button_playback);
+            talkbackBtn = (ImageButton) view.findViewById(R.id.media_video_button_talkback);
+            deviceInfoView = (TextView) view.findViewById(R.id.media_device_info_view);
             controllerView = (SengledMediaController)view.findViewById(R.id.item_media_controller);
             slsVideoTextureView.setBufferingIndicator(mLoadingView);
 
@@ -319,6 +355,7 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
             coverImageView = (ImageView)coverView.findViewById(R.id.covertImage);
             playBtn = (ImageButton) coverView.findViewById(R.id.play_btn);
             errorMsgView = (TextView) coverView.findViewById(R.id.play_error_msg);
+
         }
     }
 }

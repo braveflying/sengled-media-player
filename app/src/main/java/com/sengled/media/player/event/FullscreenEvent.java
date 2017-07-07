@@ -1,5 +1,6 @@
 package com.sengled.media.player.event;
 
+import android.view.View;
 import android.view.ViewGroup;
 
 /**
@@ -7,19 +8,19 @@ import android.view.ViewGroup;
  */
 public class FullscreenEvent {
 
+    private ViewGroup itemParentContainer;
     private ViewGroup itemContainer;
-    private int position;
 
-    public FullscreenEvent(ViewGroup itemContainer,int position) {
+    public FullscreenEvent(ViewGroup itemParentContainer,ViewGroup itemContainer) {
         this.itemContainer = itemContainer;
-        this.position = position;
+        this.itemParentContainer = itemParentContainer;
     }
 
     public ViewGroup getItemContainer() {
         return itemContainer;
     }
 
-    public int getPosition() {
-        return position;
+    public ViewGroup getItemParentContainer() {
+        return itemParentContainer;
     }
 }

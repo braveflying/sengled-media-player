@@ -113,15 +113,16 @@ public class VideoPreviewFragment extends Fragment {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        LinearLayoutManager layoutManager =(LinearLayoutManager) mLayoutManager;
-        ViewGroup recyclerItem = (ViewGroup) layoutManager.findViewByPosition(fullscreenEvent.getPosition());
+        /*LinearLayoutManager layoutManager =(LinearLayoutManager) mLayoutManager;
+        ViewGroup recyclerItem = (ViewGroup) layoutManager.findViewByPosition(fullscreenEvent.getPosition());*/
 
         if (newConfig.orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){ //竖屏
             setFullScreen(false);
             liveRecyclerView.addOnChildAttachStateChangeListener(childAttachStateChangeListener);
 
             fullscreenView.removeView(fullscreenEvent.getItemContainer());
-            recyclerItem.addView(fullscreenEvent.getItemContainer());
+            //recyclerItem.addView(fullscreenEvent.getItemContainer());
+            fullscreenEvent.getItemParentContainer().addView(fullscreenEvent.getItemContainer());
 
             fullscreenView.setVisibility(View.GONE);
             liveRecyclerView.setVisibility(View.VISIBLE);
@@ -129,7 +130,8 @@ public class VideoPreviewFragment extends Fragment {
             setFullScreen(true);
             liveRecyclerView.removeOnChildAttachStateChangeListener(childAttachStateChangeListener);
 
-            recyclerItem.removeView(fullscreenEvent.getItemContainer());
+            fullscreenEvent.getItemParentContainer().removeAllViews();
+            //recyclerItem.removeView(fullscreenEvent.getItemContainer());
             fullscreenView.addView(fullscreenEvent.getItemContainer());
             fullscreenView.setVisibility(View.VISIBLE);
             liveRecyclerView.setVisibility(View.GONE);
@@ -235,7 +237,7 @@ public class VideoPreviewFragment extends Fragment {
             }
             else  {
                 view.findViewById(R.id.play_error_msg).setVisibility(View.GONE);
-                view.findViewById(R.id.play_btn).setBackgroundResource(R.mipmap.play_button);
+                view.findViewById(R.id.play_btn).setBackgroundResource(R.mipmap.video_play_btn);
                 view.findViewById(R.id.covertImage).setVisibility(View.VISIBLE);
                 view.findViewById(R.id.play_btn).setVisibility(View.VISIBLE);
                 view.findViewById(R.id.descText).setVisibility(View.VISIBLE);

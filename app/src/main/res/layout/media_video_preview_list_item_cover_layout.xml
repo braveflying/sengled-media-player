@@ -7,7 +7,7 @@
     <ImageView
         android:id="@+id/covertImage"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="180dp"
         android:scaleType="fitXY"
         android:background="@android:color/black"
         android:src="@mipmap/play_background" />
@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:background="@mipmap/play_button" />
+        android:background="@mipmap/video_play_btn" />
 
     <TextView
         android:layout_below="@+id/play_btn"

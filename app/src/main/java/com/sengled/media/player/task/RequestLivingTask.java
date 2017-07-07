@@ -24,6 +24,7 @@ import java.util.List;
 public class RequestLivingTask extends AsyncTask<String,Void,List<Lives>> {
 
     private static final String[] testUrls= new String[]{
+            "http://192.168.1.100:9000/gongfu.mp4",
             "http://192.168.1.100:9000/merge-190454.flv",
             "rtmp://live.hkstv.hk.lxdns.com/live/hks",
             "https://jx1-amazon-storage-test.cloud.sengled.com:9000/amazon-storage/download?bucketName=sengled-test-video-cn-north-1&filename=a6b9d040-4cc5-4120-8ad7-aaaa9a3486d0.mp4",
@@ -36,10 +37,14 @@ public class RequestLivingTask extends AsyncTask<String,Void,List<Lives>> {
     };
 
     private static final String url = "http://120.55.238.158/api/live/near_recommend?lc=3000000000011509&cv=IK3.1.10_Android&cc=TG36008&ua=XiaomiMI4LTE&uid=190761403&sid=20Tr1VWDFRc5wxUub4BC6rl55284NDi0VsCuvi2aZi2h59JJRfVDI&devi=867323029795190&imsi=460002330273772&imei=867323029795190&icc=898600520115f0989782&conn=WIFI&vv=1.0.3-2016060211417.android&aid=6524c2b6ae0bb697&osversion=android_23&mtid=4c8b78842db191e46d8639b709d1fa38&mtxid=fcd7333d06da&proto=4&smid=DujlPyXDfceh+88GbEzm+rhiRWdHAXcqw3ASJWkadmdHVmg5HpwVO2vPVauokUmZh2DI3gKxpE7rh4aEPx32U3LA&longitude=116.32758&latitude=39.75431";
-    private static final String mediaServerUrl220="http://101.68.222.220:8888/media/streams";
-    private static final String mediaServerUrl221="http://101.68.222.221:8888/media/streams";
-    private static final String mediaServerRtspAddr220="rtsps://101.68.222.220:1554";
-    private static final String mediaServerRtspAddr221="rtsps://101.68.222.221:1554";
+    //private static final String mediaServerUrl220="http://101.68.222.220:8888/media/streams";
+    private static final String mediaServerUrl220="http://10.100.102.29:8888/media/streams";
+    //private static final String mediaServerUrl221="http://101.68.222.221:8888/media/streams";
+    private static final String mediaServerUrl221="http://10.100.102.29:8888/media/streams";
+    //private static final String mediaServerRtspAddr220="rtsps://101.68.222.220:1554";
+    private static final String mediaServerRtspAddr220="rtsps://10.100.102.29:1554";
+    //private static final String mediaServerRtspAddr221="rtsps://101.68.222.221:1554";
+    private static final String mediaServerRtspAddr221="rtsps://10.100.102.29:1554";
 
     private static final String rtsp="rtsp://101.68.222.220:554/DD69960CE1DF6C27EBED2B7889CD8F5A.sdp";
     private static final String imagePrefixPath="http://jx1.amazon-storage.test.cloud.sengled.com:8000/amazon-storage/download?bucketName=sengled-test-image-cn-north-1&filename=";
@@ -55,21 +60,17 @@ public class RequestLivingTask extends AsyncTask<String,Void,List<Lives>> {
     protected List<Lives> doInBackground(String... params) {
         List<Lives> liveList = new ArrayList<>();
         try {
-            /*String livingList = HttpUtils.getInstance().get(mediaServerUrl220);
+            String livingList = HttpUtils.getInstance().get(mediaServerUrl220);
             Log.i("Player",livingList);
             JSONArray jsonArray = new JSONArray(livingList);
             //JSONObject livingObj = new JSONObject(livingList);
             //JSONArray livesArr = livingObj.optJSONArray("lives");
-            Lives videolives = new Lives(null,smallVideoUrl,imagePrefixPath,imageSuffixPath);
-            liveList.add(videolives);
-            Lives httpsvideolives = new Lives(null,playbackVideoUrl,imagePrefixPath,imageSuffixPath);
-            liveList.add(httpsvideolives);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject live = jsonArray.optJSONObject(i);
                 Lives lives = new Lives(live,mediaServerRtspAddr220,imagePrefixPath,imageSuffixPath);
                 liveList.add(lives);
             }
-            Log.i("Player221",livingList);*/
+            Log.i("Player221",livingList);
 
             //=====================
             for (String testUrl : testUrls) {

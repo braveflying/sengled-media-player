@@ -88,20 +88,13 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp">
+        android:layout_height="200dp">
 
-        <com.sengled.media.player.widget.SegScrollView
-            android:id="@+id/media_video_playback_scrollview"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/media_playback_control_view"
+            android:clipChildren="true"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none">
-
-            <com.sengled.media.player.widget.SengledVideoIndicator
-                android:id="@+id/media_video_axis_indicator"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-        </com.sengled.media.player.widget.SegScrollView>
+            android:layout_height="match_parent" />
 
         <LinearLayout
             android:id="@+id/play_refer_line"

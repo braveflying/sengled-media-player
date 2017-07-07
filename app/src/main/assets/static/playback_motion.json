@@ -11,16 +11,10 @@
   {"deviceId":"11821","timePoint":"2017-06-05 02:34:55","motionType":"1","zone":"1"},
   {"deviceId":"11821","timePoint":"2017-06-05 02:35:55","motionType":"1","zone":"1"},
   {"deviceId":"11821","timePoint":"2017-06-05 02:36:55","motionType":"1","zone":"1"},
-  {"deviceId":"11821","timePoint":"2017-06-05 02:37:55","motionType":"1","zone":"1"},
-  {"deviceId":"11821","timePoint":"2017-06-05 02:38:55","motionType":"1","zone":"1"},
-  {"deviceId":"11821","timePoint":"2017-06-05 02:39:55","motionType":"1","zone":"1"},
-  {"deviceId":"11821","timePoint":"2017-06-05 02:40:55","motionType":"1","zone":"1"},
-  {"deviceId":"11821","timePoint":"2017-06-05 02:41:11","motionType":"1","zone":"1"},
-  {"deviceId":"11821","timePoint":"2017-06-05 02:42:11","motionType":"1","zone":"1"},
 
-  {"deviceId":"11821","timePoint":"2017-06-05 02:35:55","motionType":"1","zone":"3"},
-  {"deviceId":"11821","timePoint":"2017-06-05 02:40:55","motionType":"1","zone":"3"},
-  {"deviceId":"11821","timePoint":"2017-06-05 02:45:55","motionType":"1","zone":"3"},
-  {"deviceId":"11821","timePoint":"2017-06-05 02:50:11","motionType":"1","zone":"3"},
-  {"deviceId":"11821","timePoint":"2017-06-05 02:55:11","motionType":"1","zone":"3"}
+  {"deviceId":"11821","timePoint":"2017-06-05 17:30:11","motionType":"1","zone":"3"},
+  {"deviceId":"11821","timePoint":"2017-06-05 17:33:11","motionType":"1","zone":"3"},
+  {"deviceId":"11821","timePoint":"2017-06-05 17:36:11","motionType":"1","zone":"3"},
+  {"deviceId":"11821","timePoint":"2017-06-05 17:39:11","motionType":"1","zone":"3"},
+  {"deviceId":"11821","timePoint":"2017-06-05 17:42:11","motionType":"1","zone":"3"}
 ]

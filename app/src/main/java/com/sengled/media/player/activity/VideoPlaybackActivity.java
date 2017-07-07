@@ -1,15 +1,17 @@
-package com.sengled.media.player.fragment;
+package com.sengled.media.player.activity;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
@@ -21,6 +23,7 @@ import com.bjbj.slsijk.player.SLSMediaPlayer;
 import com.bjbj.slsijk.player.widget.SLSVideoTextureView;
 import com.sengled.media.player.R;
 import com.sengled.media.player.event.PlaybackEvent;
+import com.sengled.media.player.http.HttpAWSInvoker;
 import com.sengled.media.player.task.RequestPlaybackMarkTask;
 import com.sengled.media.player.task.RequestPlaybackMotionTask;
 import com.sengled.media.player.task.RequestPlaybackVideoTask;
@@ -32,13 +35,15 @@ import com.sengled.media.player.widget.timeaxis.AxisVideo;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import sun.bob.mcalendarview.CellConfig;
 import sun.bob.mcalendarview.MarkStyle;
@@ -46,25 +51,11 @@ import sun.bob.mcalendarview.listeners.OnDateClickListener;
 import sun.bob.mcalendarview.views.ExpCalendarView;
 import sun.bob.mcalendarview.vo.DateData;
 import sun.bob.mcalendarview.vo.MarkedDates;
-import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 /**
- * Created by admin on 2017/4/13.
+ * Created by admin on 2017/6/26.
  */
-public class AboutFragment extends Fragment {
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        RequestPlaybackMarkTask task = new RequestPlaybackMarkTask();
-        task.execute();
-    }
+public class VideoPlaybackActivity extends AppCompatActivity {
 
     private TextView curYM;
     private ExpCalendarView expCalendarView;
@@ -75,10 +66,13 @@ public class AboutFragment extends Fragment {
     private TextView timeLengthView;
     private TextSwitcher textSwitcher;
 
+    private TextView countInfoView;
     private List<AxisVideo> playbackList;
-    private AxisVideo curAxisVideo; // 当前播放视频对象
     private View playReferLine;
     private SegScrollView scrollView;
+
+    private String token; // 设备token
+    private String checkDate; //当前选择的回放日期
 
     private void initVideoPlayer(SLSVideoTextureView videoView){
         AVOptions options = new AVOptions();
@@ -97,29 +91,69 @@ public class AboutFragment extends Fragment {
         videoView.setOnTouchListener(new PlayTouchListener());
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.media_video_playback_layout,container, false);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
 
-        initLayout(view);
+        setContentView(R.layout.media_video_playback_layout);
+        initToolbar();
+
+        initLayout();
         initBaseLineTextSwitcher();
         initVideoPlayer(playView); // 初始化播放器
         initEvent();
-        return view;
     }
 
-    private void initLayout(View view){
-        expCalendarView = (ExpCalendarView) view.findViewById(R.id.calendar_exp);
-        curYM = (TextView) view.findViewById(R.id.media_video_playback_curym);
-        videoIndicator = (SengledVideoIndicator)view.findViewById(R.id.media_video_axis_indicator);
-        playView = (SLSVideoTextureView)view.findViewById(R.id.list_item_video_view);
-        mLoadingView = view.findViewById(R.id.item_loading_view);
-        timeLengthView =(TextView) view.findViewById(R.id.play_time_length);
-        playOrPauseBtn = (ImageButton) view.findViewById(R.id.play_or_pause_btn);
-        playReferLine =  view.findViewById(R.id.play_refer_line);
-        scrollView = (SegScrollView) view.findViewById(R.id.media_video_playback_scrollview);
-        textSwitcher = (TextSwitcher) view.findViewById(R.id.media_baseline_text);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Calendar now = Calendar.getInstance();
+        DateData curDateData = new DateData(now.get(Calendar.YEAR), now.get(Calendar.MONTH)+1,now.get(Calendar.DAY_OF_MONTH));
+        requestBackendData(curDateData);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        RequestPlaybackMarkTask task = new RequestPlaybackMarkTask();
+        task.execute();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        playView.stopPlayback();
+        playView.releaseSurfactexture();
+    }
+
+    private void initToolbar(){
+        Toolbar toolbar = (Toolbar)findViewById(R.id.media_drawer_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("视频回放");
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+    }
+
+    private void initLayout(){
+        expCalendarView = (ExpCalendarView) findViewById(R.id.calendar_exp);
+        curYM = (TextView) findViewById(R.id.media_video_playback_curym);
+        videoIndicator = (SengledVideoIndicator)findViewById(R.id.media_video_axis_indicator);
+        playView = (SLSVideoTextureView)findViewById(R.id.list_item_video_view);
+        mLoadingView = findViewById(R.id.item_loading_view);
+        timeLengthView =(TextView) findViewById(R.id.play_time_length);
+        playOrPauseBtn = (ImageButton) findViewById(R.id.play_or_pause_btn);
+        playReferLine =  findViewById(R.id.play_refer_line);
+        scrollView = (SegScrollView) findViewById(R.id.media_video_playback_scrollview);
+        textSwitcher = (TextSwitcher) findViewById(R.id.media_baseline_text);
+        countInfoView = (TextView) findViewById(R.id.media_video_playback_count_info);
 
         videoIndicator.setmLoadingView(mLoadingView);
         videoIndicator.setmPlayer(playView);
@@ -135,26 +169,14 @@ public class AboutFragment extends Fragment {
         expCalendarView.setOnDateClickListener(new OnDateClickListener() {
             @Override
             public void onDateClick(View view, DateData date) {
-                MarkedDates markedDates = expCalendarView.getMarkedDates();
-                markedDates.remove(date);
-                for (DateData dateData : markedDates.getAll()) {
-                    if (dateData.getMarkStyle().getStyle() == MarkStyle.BACKGROUND){
-                        markedDates.remove(dateData);
-                    }
-                }
-                expCalendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.parseColor("#FBC19B"))));
-                curYM.setText(String.format("%s年%s月",date.getYear(),date.getMonth()));
-
-                playView.stopPlayback();
-                new RequestPlaybackVideoTask(getContext()).execute();
-                new RequestPlaybackMotionTask(getContext()).execute();
+                requestBackendData(date);
             }
         });
 
         videoIndicator.setMotionClickListener(new SengledVideoIndicator.MotionClickListener() {
             @Override
             public void motionClick(AxisMotion axisMotion) {
-                Toast.makeText(getContext(), axisMotion.getTimePoint().toString(),Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplication(), axisMotion.getTimePoint().toString(),Toast.LENGTH_LONG).show();
             }
         });
 
@@ -162,7 +184,7 @@ public class AboutFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(playbackList ==null || playbackList.isEmpty()){
-                    Toast.makeText(getContext(),R.string.playback_list_is_empty,Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication(),R.string.playback_list_is_empty,Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -187,23 +209,53 @@ public class AboutFragment extends Fragment {
 
             @Override
             public void onScrollChanged(int l, int t, int oldl, int oldt) {
-                String showText = videoIndicator.coordinateY2Time(t);
-                textSwitcher.setText(showText);
+                try {
+                    String showText = videoIndicator.coordinateY2Time(t);
+                    textSwitcher.setText(showText);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
             }
         });
     }
 
+    private void requestBackendData(DateData date){
+        MarkedDates markedDates = expCalendarView.getMarkedDates();
+
+        Set<DateData> removeSet = new HashSet<>();
+        for (DateData dateData : markedDates.getAll()) {
+            if (dateData.getMarkStyle().getStyle() == MarkStyle.BACKGROUND){
+                removeSet.add(dateData);
+            }
+        }
+        for (DateData dateData : removeSet) {
+            markedDates.remove(dateData);
+        }
+
+        expCalendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.parseColor("#FBC19B"))));
+        curYM.setText(String.format("%s年%s月",date.getYear(),date.getMonth()));
+
+        playView.stopPlayback();
+
+        token = getIntent().getStringExtra("token");
+        checkDate = String.format("%d-%s-%s",date.getYear(),date.getMonthString(),date.getDayString());
+
+        new RequestPlaybackVideoTask(getApplication()).execute(token,checkDate);
+        new RequestPlaybackMotionTask(getApplication()).execute();
+    }
+
     private void initBaseLineTextSwitcher(){
-         textSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
-             @Override
-             public View makeView() {
-                 TextView showText = new TextView(getContext());
-                 showText.setTextSize(10);
-                 showText.setTextColor(Color.GRAY);
-                 showText.setText("=======");
-                 return showText;
-             }
-         });
+        textSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
+            @Override
+            public View makeView() {
+                TextView showText = new TextView(getApplicationContext());
+                showText.setTextSize(10);
+                showText.setTextColor(Color.GRAY);
+                showText.setText("00:00:00");
+                return showText;
+            }
+        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -221,20 +273,22 @@ public class AboutFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateAxisVideo(PlaybackEvent.UpdateAxisVideoEvent event){
+        countInfoView.setText(String.format("%d video files", event.axisVideos.size()));
         videoIndicator.setVideoBeanData(event.axisVideos);
         playbackList = event.axisVideos;
         videoIndicator.playVideo(null);
     }
 
-
     private static final int UPDATE_CURRENT_TIME = 0x01;
     private Handler timeHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
+            long duration = videoIndicator.getVideoLength();
+            long curPos = videoIndicator.getCurPosition();
 
-            if (playView.getCurrentPosition() < playView.getDuration()){
-                String totalLength = generateTime(playView.getDuration());
-                String curLength = generateTime(playView.getCurrentPosition());
+            if (curPos <= duration){
+                String totalLength = generateTime(duration);
+                String curLength = generateTime(curPos);
                 timeLengthView.setText(curLength+"/"+totalLength);
                 sendEmptyMessageDelayed(UPDATE_CURRENT_TIME, 1000);
             }
@@ -316,4 +370,5 @@ public class AboutFragment extends Fragment {
             return true;
         }
     }
+
 }

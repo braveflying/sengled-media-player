@@ -6,7 +6,11 @@ import android.os.AsyncTask;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.sengled.media.player.common.Const;
+import com.sengled.media.player.entity.PlaybackDto;
 import com.sengled.media.player.event.PlaybackEvent;
+import com.sengled.media.player.http.HttpAWSInvoker;
+import com.sengled.media.player.http.HttpAWSService;
 import com.sengled.media.player.widget.timeaxis.AxisVideo;
 import com.sengled.media.player.widget.timeaxis.AxisVideoBean;
 
@@ -18,7 +22,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by admin on 2017/5/26.
@@ -26,6 +39,7 @@ import java.util.List;
 public class RequestPlaybackVideoTask extends AsyncTask<String, Void, List<AxisVideo>> {
 
     private Context mContext;
+    private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public RequestPlaybackVideoTask(Context mContext){
         this.mContext = mContext;
@@ -33,17 +47,49 @@ public class RequestPlaybackVideoTask extends AsyncTask<String, Void, List<AxisV
 
 
     @Override
-    protected List<AxisVideo> doInBackground(String... params) {
+    protected List<AxisVideo> doInBackground(final String... params) {
+        String token = params[0];
+        final String date = params[1];
+        Call<List<PlaybackDto>> caller = HttpAWSInvoker.getInvoker(mContext).fetchPlaybackList(token, date);
+        caller.enqueue(new Callback<List<PlaybackDto>>() {
+            @Override
+            public void onResponse(Call<List<PlaybackDto>> call, Response<List<PlaybackDto>> response) {
+                Calendar calendar = Calendar.getInstance();
+                List<AxisVideo> retList = new ArrayList<AxisVideo>();
+                AxisVideo axisVideo = null;
+                for (PlaybackDto playbackDto : response.body()) {
+                    axisVideo = new AxisVideo();
+                    axisVideo.setVideoPath(Const.AWS_BASE_URL+playbackDto.getUri());
+                    String fullDate = String.format("%s %s",date, playbackDto.getTime());
+                    try {
+                        Date startTime = formatter.parse(fullDate);
+                        axisVideo.setStartTime(startTime);
+                        calendar.setTime(startTime);
+                        calendar.add(Calendar.SECOND, playbackDto.getDuration());
+                        axisVideo.setEndTime(calendar.getTime());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    retList.add(axisVideo);
+                }
+                EventBus.getDefault().post(new PlaybackEvent.UpdateAxisVideoEvent(retList));
+            }
+
+            @Override
+            public void onFailure(Call<List<PlaybackDto>> call, Throwable t) {
+                System.out.println(t.getMessage());
+            }
+        });
         return null;
     };
 
     @Override
     protected void onPostExecute(List<AxisVideo> axisVideoBeen) {
-        String result = getResultText2();
+        /*String result = getResultText2();
 
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
         List<AxisVideo> retList = gson.fromJson(result, new TypeToken<List<AxisVideo>>() {}.getType());
-        EventBus.getDefault().post(new PlaybackEvent.UpdateAxisVideoEvent(retList));
+        EventBus.getDefault().post(new PlaybackEvent.UpdateAxisVideoEvent(retList));*/
     }
 
     private String getResultText2(){

@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                 case 5:
                     //// TODO: 2017/4/12  关于
                     if (aboutFragment == null) {
-                        aboutFragment = new AboutFragment();
+                        aboutFragment = new SengledAboutFragment();
                         transaction.add(R.id.main_content_frame_parent, aboutFragment);
                     } else {
                         transaction.show(aboutFragment);
