@@ -60,9 +60,8 @@ public class RequestPlaybackVideoTask extends AsyncTask<String, Void, List<AxisV
                 for (PlaybackDto playbackDto : response.body()) {
                     axisVideo = new AxisVideo();
                     axisVideo.setVideoPath(Const.AWS_BASE_URL+playbackDto.getUri());
-                    String fullDate = String.format("%s %s",date, playbackDto.getTime());
                     try {
-                        Date startTime = formatter.parse(fullDate);
+                        Date startTime = formatter.parse(playbackDto.getTime());
                         axisVideo.setStartTime(startTime);
                         calendar.setTime(startTime);
                         calendar.add(Calendar.SECOND, playbackDto.getDuration());
@@ -77,7 +76,7 @@ public class RequestPlaybackVideoTask extends AsyncTask<String, Void, List<AxisV
 
             @Override
             public void onFailure(Call<List<PlaybackDto>> call, Throwable t) {
-                System.out.println(t.getMessage());
+                System.out.println(t);
             }
         });
         return null;

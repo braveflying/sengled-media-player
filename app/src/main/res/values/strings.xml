@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SengledMediaPlayer</string>
+    <string name="app_name">Snap2</string>
     <string name="open">open</string>
     <string name="close">close</string>
     
@@ -8,7 +8,7 @@
     <string name="cancel">取消</string>
     <string name="empty_message">暂时没有数据~</string>
     <string name="playback_list_is_empty">当前回放列表是空的！</string>
-    <string name="load_before_day_playback_data">加载前一天的回放数据</string>
+    <string name="load_before_day_playback_data">生迪智慧第二好用的APP</string>
 
     <string name="company_name">北京生迪网络科技有限公司</string>
 

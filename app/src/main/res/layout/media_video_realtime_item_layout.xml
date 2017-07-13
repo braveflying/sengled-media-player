@@ -25,10 +25,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:src="@mipmap/video_play_btn"
         android:visibility="gone"
-        app:ico_color="@color/colorPrimary"
+        />
+        <!--app:ico_color="@color/colorPrimary"
         app:ico_size="36dp"
-        app:ico_icon="gmd_play_arrow"/>
+        app:ico_icon="gmd_play_arrow"-->
 
     <TextView
         android:id="@+id/media_video_realtime_item_desc"

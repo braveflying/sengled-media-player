@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.bjbj.slsijk.player.widget.SLSVideoTextureView;
@@ -28,6 +29,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -55,7 +57,8 @@ public class SengledVideoIndicator extends View {
     private List<AxisVideo> videoBeanList = null;
     private List<AxisMotion> axisMotionList = null;
 
-    private Set<Integer> timePoint = new HashSet<>(); //包含视频的时间点
+    private Set<String> timePoint = new HashSet<>(); //包含视频的时间点
+    private LinkedHashMap<String, Integer> dotTextMap = new LinkedHashMap<>(); // 字符串时间文字,及高度
 
     private Paint linePaint,textPaint,bgPain,motionPaint,footPaint;
     private View referView; // 播放线
@@ -63,7 +66,7 @@ public class SengledVideoIndicator extends View {
 
     private  LinkedList<AxisMotion> motionPoint; // motion 显示出来的点
     private LinkedList<RectF> motionRectf = new LinkedList<>(); // motion 点显示的坐标范围
-    private Map<Integer, RectF> timeRectMap = new HashMap<>(); //每个时间点对应的坐标范围
+    private Map<String, RectF> timeRectMap = new HashMap<>(); //每个时间点对应的坐标范围
     private LinkedList<RectF> videoRectF = new LinkedList<>(); //视频坐标范围
 
     public SengledVideoIndicator(Context context) {
@@ -160,6 +163,7 @@ public class SengledVideoIndicator extends View {
     }
 
     private void measureVideoDate(){
+        total_height = 0;
         Collections.sort(videoBeanList, new Comparator<AxisVideo>() {
             @Override
             public int compare(AxisVideo o1, AxisVideo o2) {
@@ -178,38 +182,52 @@ public class SengledVideoIndicator extends View {
             vEndCalendar.setTime(AxisVideo.getEndTime());
 
             do{
-                timePoint.add(vStartCalendar.get(Calendar.HOUR_OF_DAY));
+                timePoint.add(String.format("%d%d",vStartCalendar.get(Calendar.DAY_OF_MONTH),vStartCalendar.get(Calendar.HOUR_OF_DAY)));
                 vStartCalendar.add(Calendar.HOUR_OF_DAY,1);
             }while (vStartCalendar.before(vEndCalendar));
         }
 
-        total_height= timePoint.size() * VIDEO_ITEM_HEIGHT + (24 - timePoint.size())*NO_VIDEO_ITEM_HEIGHT;
+        if (!videoBeanList.isEmpty()){
+            AxisVideo lastAxisVideo = videoBeanList.get(0);
+            vStartCalendar.setTime(lastAxisVideo.getStartTime());
+            vEndCalendar.setTime(lastAxisVideo.getEndTime());
+            vStartCalendar.set(Calendar.HOUR_OF_DAY, 0);
+            vStartCalendar.set(Calendar.MINUTE, 0);
+            vStartCalendar.set(Calendar.SECOND, 0);
+
+            timeRectMap.clear();
+            dotTextMap.clear();
+            int dotIndex = AXIS_START_Y;
+            while (vEndCalendar.after(vStartCalendar)){
+                int startY = dotIndex;
+                if (timePoint.contains(String.format("%d%s",vEndCalendar.get(Calendar.DAY_OF_MONTH), vEndCalendar.get(Calendar.HOUR_OF_DAY)))){
+                    dotIndex += VIDEO_ITEM_HEIGHT;
+                }else {
+                    dotIndex += NO_VIDEO_ITEM_HEIGHT;
+                }
+                String key = String.format("%d-%d:00",vEndCalendar.get(Calendar.DAY_OF_MONTH),vEndCalendar.get(Calendar.HOUR_OF_DAY));
+                dotTextMap.put(key,dotIndex);
+                timeRectMap.put(key, new RectF(0,startY, total_width, dotIndex));
+
+                System.out.println("yyh time"+vEndCalendar.getTime().toString());
+                vEndCalendar.add(Calendar.HOUR_OF_DAY,-1);
+            }
+            total_height = dotIndex - AXIS_START_Y;
+        }
     }
 
     private void drawMarkDot(Canvas canvas){
         if (videoBeanList.isEmpty()){
             return;
         }
-        timeRectMap.clear();
 
-        int pointY = AXIS_START_Y;
         textPaint.setTextSize(25);
         textPaint.setColor(Color.parseColor("#cccccc"));
-        canvas.drawText("0:00",AXIS_START_X+AXIS_DOT_LENGTH+10, pointY+10, textPaint);
-
-        for (int i = 23; i >= 0; i--) {
-            int startY = pointY;
-            if (timePoint.contains(i)){
-                pointY += VIDEO_ITEM_HEIGHT;
-            }else{
-                pointY += NO_VIDEO_ITEM_HEIGHT;
-            }
-
-            timeRectMap.put(i, new RectF(0,startY, total_width, pointY)); // 缓存时间段对应的Rect 信息
-
-            canvas.drawLine(AXIS_START_X, pointY, AXIS_START_X+AXIS_DOT_LENGTH, pointY, linePaint);
-            canvas.drawText(i+":00",AXIS_START_X+AXIS_DOT_LENGTH+10, pointY+10, textPaint);
+        for (Map.Entry<String, Integer> dotEntry : dotTextMap.entrySet()) {
+            canvas.drawLine(AXIS_START_X, dotEntry.getValue(), AXIS_START_X+AXIS_DOT_LENGTH, dotEntry.getValue(), linePaint);
+            canvas.drawText(dotEntry.getKey(),AXIS_START_X+AXIS_DOT_LENGTH+10, dotEntry.getValue()+10, textPaint);
         }
+
         canvas.drawLine(AXIS_START_X+AXIS_DOT_LENGTH/2, AXIS_START_Y, AXIS_START_X+AXIS_DOT_LENGTH/2, total_height+AXIS_START_Y, linePaint);
     }
 
@@ -221,12 +239,6 @@ public class SengledVideoIndicator extends View {
             Date endTime = bean.getEndTime();
             int startY = calcTopOffsetByDate(startTime);
             int endY = calcTopOffsetByDate(endTime);
-
-            if (endY > startY && endTime.before(startTime)){
-                startY = total_height + AXIS_START_Y;
-            }else if (endY > startY && endTime.after(startTime)){
-                endY = AXIS_START_Y;
-            }
 
             RectF bgRect = new RectF(0,endY, total_width, startY);
             videoRectF.add(bgRect);
@@ -311,19 +323,13 @@ public class SengledVideoIndicator extends View {
         Calendar paramCalendar = Calendar.getInstance();
         paramCalendar.setTime(date);
 
+        String key = String.format("%d-%d:00",paramCalendar.get(Calendar.DAY_OF_MONTH),paramCalendar.get(Calendar.HOUR_OF_DAY));
+
         int hour = paramCalendar.get(Calendar.HOUR_OF_DAY);
         int minute = paramCalendar.get(Calendar.MINUTE);
         int second = paramCalendar.get(Calendar.SECOND);
 
-        int height = AXIS_START_Y;
-
-        for (int i = hour; i<=23; i++){
-            if (timePoint.contains(i)){
-                height += VIDEO_ITEM_HEIGHT;
-            }else {
-                height += NO_VIDEO_ITEM_HEIGHT;
-            }
-        }
+        int height = dotTextMap.get(key);
 
         int smallSecond = minute*60 + second;
         long hourSecond=3600; // 一小时总秒数
@@ -444,6 +450,7 @@ public class SengledVideoIndicator extends View {
         if (mLoadingView != null){
             mLoadingView.setVisibility(VISIBLE);
         }
+        seekToSecond = 0;
         mPlayer.stopPlayback();
         mPlayer.setVideoPath(curPlayVideo.getVideoPath());
     }
@@ -505,10 +512,10 @@ public class SengledVideoIndicator extends View {
      * @return
      */
     public String coordinateY2Time(int coordinateY){
-        int hours = 0;
+        String hours = "";
         RectF timeRect = null;
         float baseY = coordinateY+referView.getTop() + referView.getHeight()/2;
-        for (Map.Entry<Integer, RectF> integerRectFEntry : timeRectMap.entrySet()) {
+        for (Map.Entry<String, RectF> integerRectFEntry : timeRectMap.entrySet()) {
             if (integerRectFEntry.getValue().contains(0, baseY)){
                 hours = integerRectFEntry.getKey();
                 timeRect = integerRectFEntry.getValue();
@@ -522,9 +529,11 @@ public class SengledVideoIndicator extends View {
         float unitSecHeight = timeRect.height()/(float) 3600;
         int totalSeconds = new BigDecimal((timeRect.bottom - baseY)/ (float) unitSecHeight).intValue();
 
+        String[] times = hours.split("-|:");
+
         int seconds = totalSeconds % 60;
         int minutes = (totalSeconds / 60) % 60;
-        return String.format(Locale.US, "%02d:%02d:%02d", hours, minutes,
+        return String.format(Locale.US, "%02d:%02d:%02d", Integer.parseInt(times[1]), minutes,
                 seconds).toString();
     };
 
@@ -562,9 +571,9 @@ public class SengledVideoIndicator extends View {
      */
     private SLSVideoTextureView mPlayer;
     private AxisVideo curPlayVideo;
-    private SegScrollView scrollView;
+    private ScrollView scrollView;
 
-    public void setScrollView(SegScrollView scrollView) {
+    public void setScrollView(ScrollView scrollView) {
         this.scrollView = scrollView;
     }
 

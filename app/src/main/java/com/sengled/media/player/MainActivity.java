@@ -62,6 +62,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onBackPressed() {
         //super.onBackPressed();
         finish();
@@ -179,36 +184,37 @@ public class MainActivity extends AppCompatActivity {
             switch (position){
                 case 0:
                     //// TODO: 2017/4/12  视频预览
-                    if (videoPreviewFragment == null) {
+                    if (videoPreviewFragment !=null && videoPreviewFragment.isAdded()){
+                        transaction.show(videoPreviewFragment);
+                    }else {
                         videoPreviewFragment = new VideoPreviewFragment();
                         transaction.add(R.id.main_content_frame_parent, videoPreviewFragment);
-                    } else {
-                        transaction.show(videoPreviewFragment);
                     }
+
                     break;
                 case 1: //实时预览
-                    if (videoRealtimeFragment == null) {
+                    if (videoRealtimeFragment != null && videoRealtimeFragment.isAdded()) {
+                        transaction.show(videoRealtimeFragment);
+                    } else {
                         videoRealtimeFragment = new VideoRealtimeFragment();
                         transaction.add(R.id.main_content_frame_parent, videoRealtimeFragment);
-                    } else {
-                        transaction.show(videoRealtimeFragment);
                     }
                     break;
                 case 2:
                     //// TODO: 2017/4/12  我的截图
-                    if (imageSwitchFragment == null) {
+                    if (imageSwitchFragment != null && imageSwitchFragment.isAdded()) {
+                        transaction.show(imageSwitchFragment);
+                    } else {
                         imageSwitchFragment = new ImageSwitchFragment();
                         transaction.add(R.id.main_content_frame_parent, imageSwitchFragment);
-                    } else {
-                        transaction.show(imageSwitchFragment);
                     }
                     break;
                 case 3:
-                    if (staggerImageFragment == null) {
+                    if (staggerImageFragment != null && staggerImageFragment.isAdded()) {
+                        transaction.show(staggerImageFragment);
+                    } else {
                         staggerImageFragment = new StaggerImageFragment();
                         transaction.add(R.id.main_content_frame_parent, staggerImageFragment);
-                    } else {
-                        transaction.show(staggerImageFragment);
                     }
                     break;
                 case 4:
@@ -216,11 +222,11 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 5:
                     //// TODO: 2017/4/12  关于
-                    if (aboutFragment == null) {
+                    if (aboutFragment != null && aboutFragment.isAdded()) {
+                        transaction.show(aboutFragment);
+                    } else {
                         aboutFragment = new SengledAboutFragment();
                         transaction.add(R.id.main_content_frame_parent, aboutFragment);
-                    } else {
-                        transaction.show(aboutFragment);
                     }
                     break;
                 default:

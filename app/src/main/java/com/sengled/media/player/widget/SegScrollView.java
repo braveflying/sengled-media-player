@@ -12,7 +12,7 @@ public class SegScrollView extends ScrollView {
     private OnScrollStatusListener onScrollStatusListener;
 
     //Runnable延迟执行的时间
-    private long delayMillis = 100;
+    private long delayMillis = 10;
 
     //上次滑动的时间
     private long lastScrollUpdate = -1;
@@ -21,7 +21,7 @@ public class SegScrollView extends ScrollView {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
-            if ((currentTime - lastScrollUpdate) > 100) {
+            if ((currentTime - lastScrollUpdate) > 10) {
                 lastScrollUpdate = -1;
                 onScrollStatusListener.onScrollEnd(getScrollY());
             } else {

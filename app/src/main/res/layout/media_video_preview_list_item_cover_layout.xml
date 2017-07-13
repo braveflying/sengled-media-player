@@ -12,17 +12,6 @@
         android:background="@android:color/black"
         android:src="@mipmap/play_background" />
 
-    <TextView
-        android:id="@+id/descText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/covertImage"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="10dp"
-        android:text="beijing liteng"
-        android:textColor="#333333"
-        android:textSize="16sp" />
-
     <ImageButton
         android:id="@+id/play_btn"
         android:layout_width="wrap_content"

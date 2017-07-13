@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="210dp"
-    android:layout_marginBottom="10dp"
+    android:layout_marginBottom="30dp"
     android:background="#30000000"
     android:orientation="vertical">
 
@@ -51,40 +51,57 @@
 
     <RelativeLayout
         android:id="@+id/media_video_info"
-        android:layout_below="@+id/media_player_container"
+        android:layout_below="@id/media_player_container"
         android:layout_width="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_height="30dp">
+        android:layout_height="45dp">
 
         <TextView
             android:id="@+id/media_device_info_view"
-            android:layout_width="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:layout_width="150dp"
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="标题栏"/>
 
-        <ImageButton
+        <Button
             android:id="@+id/media_video_button_playback"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="5dp"
-            android:background="@android:color/transparent"
-            app:ico_color="#ffffff"
-            app:ico_icon="cmd_file_video"
-            app:ico_size="20dp"/>
+            android:textColor="@android:color/white"
+            android:drawableLeft="@mipmap/icon_replay"
+            android:text="回放"
+            android:background="@android:color/transparent"/>
 
-        <ImageButton
+        <Button
             android:id="@+id/media_video_button_talkback"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/media_video_button_playback"
             android:layout_centerVertical="true"
             android:layout_marginRight="10dp"
+            android:textColor="@android:color/white"
+            android:drawableLeft="@mipmap/icon_mic"
+            android:text="对讲"
             android:background="@android:color/transparent"
-            app:ico_color="#ffffff"
-            app:ico_icon="cmd_microphone"
-            app:ico_size="20dp"/>
+            />
+
+        <Button
+            android:id="@+id/media_video_button_lighting"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/media_video_button_talkback"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:textColor="@android:color/white"
+            android:drawableLeft="@mipmap/icon_lighting"
+            android:text="灯光"
+            android:background="@android:color/transparent"
+            />
+
     </RelativeLayout>
 </RelativeLayout>

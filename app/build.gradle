@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.sengled.media.player"
-        minSdkVersion 23
+        minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -60,6 +60,6 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     //compile files('libs/SLSMediaPlayer.jar')
-    compile(name:'ijkplayer-java-debug', ext:'aar')
+    compile(name:'ijkplayer-java-release', ext:'aar')
     //compile files('libs/gson-2.8.1.jar')
 }

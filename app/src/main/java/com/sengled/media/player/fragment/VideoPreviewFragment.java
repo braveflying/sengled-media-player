@@ -115,6 +115,7 @@ public class VideoPreviewFragment extends Fragment {
         super.onConfigurationChanged(newConfig);
         /*LinearLayoutManager layoutManager =(LinearLayoutManager) mLayoutManager;
         ViewGroup recyclerItem = (ViewGroup) layoutManager.findViewByPosition(fullscreenEvent.getPosition());*/
+        if(fullscreenEvent == null)return;
 
         if (newConfig.orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){ //竖屏
             setFullScreen(false);
@@ -200,6 +201,7 @@ public class VideoPreviewFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshLivesData(LivesDataRefreshEvent event){
+        liveDataList.clear();
         liveDataList.addAll(event.getLives());
         mAdapter.notifyDataSetChanged();
     }
@@ -240,7 +242,6 @@ public class VideoPreviewFragment extends Fragment {
                 view.findViewById(R.id.play_btn).setBackgroundResource(R.mipmap.video_play_btn);
                 view.findViewById(R.id.covertImage).setVisibility(View.VISIBLE);
                 view.findViewById(R.id.play_btn).setVisibility(View.VISIBLE);
-                view.findViewById(R.id.descText).setVisibility(View.VISIBLE);
             }
         }
 

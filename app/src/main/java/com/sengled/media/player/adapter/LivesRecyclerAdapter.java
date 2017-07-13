@@ -2,20 +2,26 @@ package com.sengled.media.player.adapter;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.bjbj.slsijk.player.AVOptions;
@@ -23,6 +29,8 @@ import com.bjbj.slsijk.player.SLSMediaPlayer;
 import com.bjbj.slsijk.player.widget.SLSVideoTextureView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
 import com.sengled.media.player.R;
 import com.sengled.media.player.activity.TalkbackActivity;
 import com.sengled.media.player.activity.VideoPlaybackActivity;
@@ -58,6 +66,12 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
         final View view = mInflater.inflate(R.layout.media_video_preview_list_item_layout, parent, false);
         ViewHolder vh = new ViewHolder(view);
 
+        Drawable microDrawable = new IconicsDrawable(mContext, "cmd_microphone_outline")
+                .color(ContextCompat.getColor(mContext, R.color.colorPrimaryIcon))
+                .sizeDp(18);
+
+        vh.talkbackBtn.setCompoundDrawables(microDrawable,null, null,null);
+
         vh.slsVideoTextureView.setMediaController(vh.controllerView);
         initVideoPlayer(vh.slsVideoTextureView);
         initPlayerEvent(vh);
@@ -67,7 +81,6 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Lives lives = mLives.get(position);
-        holder.descView.setText(lives.getToken());
         holder.deviceInfoView.setText(lives.getToken());
 
         ControllerClickListener clickListener = new ControllerClickListener(holder, position);
@@ -76,6 +89,7 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
         holder.controllerView.setScreenshotListener(clickListener);
         holder.playbackBtn.setOnClickListener(clickListener);
         holder.talkbackBtn.setOnClickListener(clickListener);
+        holder.lightingBtn.setOnClickListener(clickListener);
 
         Glide.with(mContext)
                 .load(lives.getImage_path())
@@ -136,7 +150,6 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
                 public void handleMessage(Message msg) {
                     holder.errorMsgView.setVisibility(View.GONE);
                     holder.playBtn.setVisibility(View.GONE);
-                    holder.descView.setVisibility(View.GONE);
                     holder.coverImageView.setVisibility(View.GONE);
                     holder.mLoadingView.setVisibility(View.GONE);
                 }
@@ -269,9 +282,22 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
                 case R.id.media_video_button_talkback:
                     startTalkback(v);
                     break;
+                case R.id.media_video_button_lighting:
+                    lightSetting(v);
+                    break;
                 default:
                     // TODO: 2017/4/12
             }
+        }
+
+        private void lightSetting(View v){
+
+            Dialog alertDialog = new AlertDialog.Builder(mContext).
+                    setTitle("Tips").
+                    setMessage("In construction").
+                    setIcon(R.mipmap.sengled_default_photo).
+                    create();
+            alertDialog.show();
         }
 
         private void startTalkback(View v){
@@ -329,12 +355,12 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
         public View coverView;
         public SengledMediaController controllerView;
 
-        public TextView descView;
         public ImageView coverImageView;
         public ImageButton playBtn;
         public TextView errorMsgView;
-        public ImageButton playbackBtn;
-        public ImageButton talkbackBtn;
+        public Button playbackBtn;
+        public Button talkbackBtn;
+        public Button lightingBtn;
         private TextView deviceInfoView;
 
         public ViewHolder(View view) {
@@ -345,13 +371,14 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
             slsVideoTextureView = (SLSVideoTextureView) view.findViewById(R.id.list_item_video_view);
             mLoadingView = view.findViewById(R.id.item_loading_view);
             coverView = view.findViewById(R.id.media_video_item_cover_include_id);
-            playbackBtn = (ImageButton) view.findViewById(R.id.media_video_button_playback);
-            talkbackBtn = (ImageButton) view.findViewById(R.id.media_video_button_talkback);
+            playbackBtn = (Button) view.findViewById(R.id.media_video_button_playback);
+            talkbackBtn = (Button) view.findViewById(R.id.media_video_button_talkback);
+            lightingBtn = (Button) view.findViewById(R.id.media_video_button_lighting);
+
             deviceInfoView = (TextView) view.findViewById(R.id.media_device_info_view);
             controllerView = (SengledMediaController)view.findViewById(R.id.item_media_controller);
             slsVideoTextureView.setBufferingIndicator(mLoadingView);
 
-            descView = (TextView) coverView.findViewById(R.id.descText);
             coverImageView = (ImageView)coverView.findViewById(R.id.covertImage);
             playBtn = (ImageButton) coverView.findViewById(R.id.play_btn);
             errorMsgView = (TextView) coverView.findViewById(R.id.play_error_msg);

@@ -109,6 +109,8 @@ public class TalkbackActivity extends AppCompatActivity {
 
     private void startPlaying(){
         String videoPath = getIntent().getCharSequenceExtra("videoPath").toString();
+        loadView.setVisibility(View.VISIBLE);
+        coverView.findViewById(R.id.play_btn).setVisibility(View.GONE);
         player.setVideoPath(videoPath);
         player.start();
     }

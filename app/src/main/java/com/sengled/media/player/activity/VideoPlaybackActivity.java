@@ -2,6 +2,7 @@ package com.sengled.media.player.activity;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,7 +13,9 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +30,7 @@ import com.sengled.media.player.http.HttpAWSInvoker;
 import com.sengled.media.player.task.RequestPlaybackMarkTask;
 import com.sengled.media.player.task.RequestPlaybackMotionTask;
 import com.sengled.media.player.task.RequestPlaybackVideoTask;
+import com.sengled.media.player.widget.ObservableScrollView;
 import com.sengled.media.player.widget.SegScrollView;
 import com.sengled.media.player.widget.SengledVideoIndicator;
 import com.sengled.media.player.widget.timeaxis.AxisMotion;
@@ -69,7 +73,7 @@ public class VideoPlaybackActivity extends AppCompatActivity {
     private TextView countInfoView;
     private List<AxisVideo> playbackList;
     private View playReferLine;
-    private SegScrollView scrollView;
+    private ObservableScrollView scrollView;
 
     private String token; // 设备token
     private String checkDate; //当前选择的回放日期
@@ -81,6 +85,8 @@ public class VideoPlaybackActivity extends AppCompatActivity {
         options.setInteger(AVOptions.KEY_PROBESIZE, 128 * 1024);
         options.setInteger(AVOptions.KEY_MEDIACODEC, AVOptions.MEDIA_CODEC_SW_DECODE);
         options.setInteger(AVOptions.KEY_START_ON_PREPARED, 1);
+        options.setInteger(AVOptions.KEY_MAX_CACHE_BUFFER_DURATION, 3000);
+        options.setInteger(AVOptions.KEY_PROBESIZE, 1024 * 8);
         videoView.setAVOptions(options);
         videoView.setDisplayAspectRatio(SLSVideoTextureView.ASPECT_RATIO_16_9);
 
@@ -89,6 +95,7 @@ public class VideoPlaybackActivity extends AppCompatActivity {
         videoView.setOnPreparedListener(new PlayPreparedListener());
         videoView.setOnSeekCompleteListener(new PlaySeekCompletionListener());
         videoView.setOnTouchListener(new PlayTouchListener());
+        videoView.setOnErrorListener(new PlayErrorListener());
     }
 
     @Override
@@ -151,7 +158,7 @@ public class VideoPlaybackActivity extends AppCompatActivity {
         timeLengthView =(TextView) findViewById(R.id.play_time_length);
         playOrPauseBtn = (ImageButton) findViewById(R.id.play_or_pause_btn);
         playReferLine =  findViewById(R.id.play_refer_line);
-        scrollView = (SegScrollView) findViewById(R.id.media_video_playback_scrollview);
+        scrollView = (ObservableScrollView) findViewById(R.id.media_video_playback_scrollview);
         textSwitcher = (TextSwitcher) findViewById(R.id.media_baseline_text);
         countInfoView = (TextView) findViewById(R.id.media_video_playback_count_info);
 
@@ -198,24 +205,49 @@ public class VideoPlaybackActivity extends AppCompatActivity {
             }
         });
 
-        scrollView.setOnScrollStatusListener(new SegScrollView.OnScrollStatusListener() {
-            @Override
-            public void onScrollStart() {}
+        scrollView.setOnTouchListener(new View.OnTouchListener() {
+            private int lastY = 0;
+            private int touchEventId = -9983761;
+            Handler handler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+                    View scroller = (View) msg.obj;
 
+                    if (msg.what == touchEventId) {
+                        if (lastY == scroller.getScrollY()) {
+                            videoIndicator.synProgress(scroller.getScrollY());
+                        } else {
+                            handler.sendMessageDelayed(handler.obtainMessage(touchEventId, scroller), 1);
+                            lastY = scroller.getScrollY();
+                        }
+                    }
+                }
+            };
             @Override
-            public void onScrollEnd(int scrollY) {
-                videoIndicator.synProgress(scrollY);
+            public boolean onTouch(View v, MotionEvent event) {
+                int eventAction = event.getAction();
+                int y = (int) event.getRawY();
+                switch (eventAction) {
+                    case MotionEvent.ACTION_UP:
+                        handler.sendMessageDelayed(handler.obtainMessage(touchEventId, v), 5);
+                        break;
+                    default:
+                        break;
+                }
+                return false;
             }
+        });
 
+        scrollView.setScrollViewListener(new ObservableScrollView.ScrollViewListener(){
             @Override
-            public void onScrollChanged(int l, int t, int oldl, int oldt) {
+            public void onScrollChanged(ObservableScrollView scrollView, int x, int y, int oldx, int oldy) {
                 try {
-                    String showText = videoIndicator.coordinateY2Time(t);
+                    String showText = videoIndicator.coordinateY2Time(y);
                     textSwitcher.setText(showText);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-
             }
         });
     }
@@ -273,6 +305,7 @@ public class VideoPlaybackActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateAxisVideo(PlaybackEvent.UpdateAxisVideoEvent event){
+        scrollView.scrollTo(0,0);
         countInfoView.setText(String.format("%d video files", event.axisVideos.size()));
         videoIndicator.setVideoBeanData(event.axisVideos);
         playbackList = event.axisVideos;
@@ -332,6 +365,56 @@ public class VideoPlaybackActivity extends AppCompatActivity {
             timeHandler.sendEmptyMessageDelayed(UPDATE_CURRENT_TIME,1000);
             playOrPauseBtn.setVisibility(View.GONE);
             videoIndicator.setAutoCall(true);
+        }
+    }
+
+    private String errInfo = null;
+    class PlayErrorListener implements SLSMediaPlayer.OnErrorListener{
+
+        @Override
+        public boolean onError(SLSMediaPlayer slsMediaPlayer, int errorCode) {
+            switch (errorCode) {
+                case SLSMediaPlayer.ERROR_CODE_INVALID_URI:
+                    errInfo = "Invalid URL !";
+                    break;
+                case SLSMediaPlayer.ERROR_CODE_404_NOT_FOUND:
+                    errInfo = "404 resource not found !";
+                    break;
+                case SLSMediaPlayer.ERROR_CODE_CONNECTION_REFUSED:
+                    errInfo = "Connection refused !";
+                    break;
+                case SLSMediaPlayer.ERROR_CODE_CONNECTION_TIMEOUT:
+                    errInfo = "Connection timeout !";
+                    break;
+                case SLSMediaPlayer.ERROR_CODE_STREAM_DISCONNECTED:
+                    errInfo = "Stream disconnected !";
+                    break;
+                case SLSMediaPlayer.ERROR_CODE_IO_ERROR:
+                    errInfo = "Network IO Error !";
+                    break;
+                case SLSMediaPlayer.ERROR_CODE_UNAUTHORIZED:
+                    errInfo = "Unauthorized Error !";
+                    break;
+                case SLSMediaPlayer.ERROR_CODE_PREPARE_TIMEOUT:
+                    errInfo = "Prepare timeout !";
+                    break;
+                case SLSMediaPlayer.ERROR_CODE_READ_FRAME_TIMEOUT:
+                    errInfo = "Read frame timeout !";
+                    break;
+                case SLSMediaPlayer.ERROR_CODE_HW_DECODE_FAILURE:
+                    break;
+                default:
+                    errInfo = "unknown error !";
+                    break;
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(VideoPlaybackActivity.this, errInfo, Toast.LENGTH_LONG).show();
+                }
+            });
+            return true;
         }
     }
 
