@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.bjbj.sls.talkback.SLSTalkback;
 
+import java.io.DataInputStream;
+
 /**
  * Created by admin on 2017/6/30.
  */
@@ -24,7 +26,7 @@ public class AudioRecordTask implements Runnable {
     private static final int BUFFER_FRAME_SIZE =640;
     private int audioBufSize = 0;
 
-    private byte[] samples;
+    private short[] samples;
     private int bufferRead = 0;
     private int bufferSize = 0;
 
@@ -47,7 +49,7 @@ public class AudioRecordTask implements Runnable {
             //do something
             return;
         }
-        samples = new byte[audioBufSize];
+        samples = new short[audioBufSize];
         audioRecord = new AudioRecord(audioSource, sampleRate,
                 channelConfig, audioFormat, audioBufSize);
     }
@@ -78,7 +80,7 @@ public class AudioRecordTask implements Runnable {
             Log.d("ijkmedia","bufferRead = "+bufferRead +" buffersize="+bufferSize);
             if (AudioRecord.ERROR_INVALID_OPERATION != bufferRead)
             {
-                talkback.sendMessage(samples);
+                talkback.sendMessage(toByteArray(samples));
             }
         }
         audioRecord.stop();
@@ -96,5 +98,29 @@ public class AudioRecordTask implements Runnable {
     {
         setRecording(false);
         talkback.destroyTalkback();
+    }
+
+    public double countDb()
+    {
+
+        float maxAmplitude = 0;
+        for (int i = 0; i < samples.length; i++)
+        {
+            maxAmplitude += samples[i] * samples[i];
+        }
+        // 平方和除以数据总长度，得到音量大小。
+        double mean = maxAmplitude / (double) bufferRead;
+        double volume = 10 * Math.log10(mean);
+        return volume;
+    }
+
+    public byte[] toByteArray(short[] src) {
+
+        byte[] bytes = new byte[src.length*2];
+        for (int i = 0; i< src.length ; i ++) {
+            bytes[i * 2 + 0] = (byte)(0xFF & (src[i] >> 0));
+            bytes[i * 2 + 1] = (byte)(0xFF & (src[i] >> 8));
+        }
+        return bytes;
     }
 }

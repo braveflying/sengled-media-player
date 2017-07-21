@@ -3,58 +3,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="210dp"
+    android:layout_height="220dp"
     android:layout_marginBottom="30dp"
     android:background="#30000000"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/media_player_container"
-        android:layout_width="wrap_content"
-        android:layout_height="180dp">
-
-        <FrameLayout
-            android:id="@+id/item_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <com.bjbj.slsijk.player.widget.SLSVideoTextureView
-                android:id="@+id/list_item_video_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"/>
-
-            <include
-                android:id="@+id/media_video_controller_include_id"
-                layout="@layout/media_video_controller_layout"/>
-
-            <include
-                android:id="@+id/media_video_item_cover_include_id"
-                layout="@layout/media_video_preview_list_item_cover_layout"/>
-
-            <LinearLayout
-                android:id="@+id/item_loading_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:visibility="gone">
-
-                <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-        </FrameLayout>
-    </LinearLayout>
-
     <RelativeLayout
         android:id="@+id/media_video_info"
-        android:layout_below="@id/media_player_container"
         android:layout_width="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_height="45dp">
+        android:layout_height="40dp">
 
         <TextView
             android:id="@+id/media_device_info_view"
@@ -104,4 +62,46 @@
             />
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/media_player_container"
+        android:layout_below="@id/media_video_info"
+        android:layout_width="wrap_content"
+        android:layout_height="180dp">
+
+        <FrameLayout
+            android:id="@+id/item_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.bjbj.slsijk.player.widget.SLSVideoTextureView
+                android:id="@+id/list_item_video_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"/>
+
+            <include
+                android:id="@+id/media_video_controller_include_id"
+                layout="@layout/media_video_controller_layout"/>
+
+            <include
+                android:id="@+id/media_video_item_cover_include_id"
+                layout="@layout/media_video_preview_list_item_cover_layout"/>
+
+            <LinearLayout
+                android:id="@+id/item_loading_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
 </RelativeLayout>

@@ -81,7 +81,7 @@ public class SengledMediaController extends FrameLayout implements ISLSMediaCont
 
     private AudioManager mAM;
     private Runnable mLastSeekBarRunnable;
-    private boolean mDisableProgress = false;
+    private boolean mDisableProgress = true;
 
     public SengledMediaController(Context context, AttributeSet attrs) {
         super(context, attrs);

@@ -8,8 +8,9 @@
     <ImageView
         android:id="@+id/iv_screenshot_photo"
         android:layout_width="360dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="20dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_height="180dp"/>

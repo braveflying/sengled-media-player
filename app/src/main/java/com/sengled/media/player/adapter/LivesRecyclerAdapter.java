@@ -15,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +40,9 @@ import com.sengled.media.player.common.Utils;
 import com.sengled.media.player.entity.Lives;
 import com.sengled.media.player.event.FullscreenEvent;
 import com.sengled.media.player.event.ScreenshotEvent;
+import com.sengled.media.player.widget.LightAdjustWin;
 import com.sengled.media.player.widget.SengledMediaController;
+import com.sengled.media.player.widget.TalkBackDialog;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -94,6 +97,7 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
         Glide.with(mContext)
                 .load(lives.getImage_path())
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
                 .centerCrop()
                 .placeholder(R.mipmap.play_background)
                 .crossFade()
@@ -114,8 +118,12 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
         options.setInteger(AVOptions.KEY_PROBESIZE, 128 * 1024);
         options.setInteger(AVOptions.KEY_MEDIACODEC, AVOptions.MEDIA_CODEC_SW_DECODE);
         options.setInteger(AVOptions.KEY_START_ON_PREPARED, 0);
+
+        options.setInteger(AVOptions.KEY_LIVE_STREAMING, 1); // 直播参数值 为 1 , 点播为0
+        options.setInteger(AVOptions.KEY_DELAY_OPTIMIZATION, 1); // 直播参数值 为 1 , 点播为0
         videoView.setAVOptions(options);
         videoView.setDisplayAspectRatio(SLSVideoTextureView.ASPECT_RATIO_16_9);
+        videoView.setEnableAspect(false);
     }
 
     private void initPlayerEvent(ViewHolder holder){
@@ -292,20 +300,25 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
 
         private void lightSetting(View v){
 
-            Dialog alertDialog = new AlertDialog.Builder(mContext).
+            /*Dialog alertDialog = new AlertDialog.Builder(mContext).
                     setTitle("Tips").
                     setMessage("In construction").
                     setIcon(R.mipmap.sengled_default_photo).
                     create();
-            alertDialog.show();
+            alertDialog.show();*/
+
+            LightAdjustWin adjustWin = new LightAdjustWin(mContext, v);
+            adjustWin.showAsDropDown(v, -((int)v.getX()), 0);
         }
 
         private void startTalkback(View v){
-            Intent intent = new Intent();
+           /* Intent intent = new Intent();
             intent.putExtra("videoPath", lives.getStream_addr());
             intent.putExtra("deviceId", lives.getId());
             intent.setClass(mContext, TalkbackActivity.class);
-            mContext.startActivity(intent);
+            mContext.startActivity(intent);*/
+            TalkBackDialog talkBackDialog = new TalkBackDialog();
+            talkBackDialog.show(((Activity)mContext).getFragmentManager(), "hello");
         }
 
         private void startPlayback(View v){

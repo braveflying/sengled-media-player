@@ -89,7 +89,7 @@ public class ImageSwitchFragment extends Fragment{
             public View makeView() {
                 ImageView imageView = new ImageView(getContext());
                 imageView.setBackgroundColor(0xFFFFFFFF);
-                imageView.setScaleType(ImageView.ScaleType.FIT_XY);//居中显示
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);//居中显示
                 imageView.setLayoutParams(new ImageSwitcher.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));//定义组件
                 return imageView;
             }

@@ -404,7 +404,7 @@ public class VideoPlaybackActivity extends AppCompatActivity {
                 case SLSMediaPlayer.ERROR_CODE_HW_DECODE_FAILURE:
                     break;
                 default:
-                    errInfo = "unknown error !";
+                    errInfo = errorCode + ", unknown error !";
                     break;
             }
 

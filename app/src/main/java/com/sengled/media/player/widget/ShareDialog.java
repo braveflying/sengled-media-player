@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,8 +45,8 @@ public class ShareDialog extends DialogFragment {
         ViewGroup.LayoutParams layoutParams = photo.getLayoutParams();
         layoutParams.width = getResources().getDisplayMetrics().widthPixels * 7 / 10;
         layoutParams.height = getResources().getDisplayMetrics().heightPixels * 7 / 10;
-        layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         if (layoutParams.height > layoutParams.width){
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         }
         photo.setLayoutParams(layoutParams);
 

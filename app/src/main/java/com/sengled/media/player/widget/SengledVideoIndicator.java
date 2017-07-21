@@ -329,7 +329,11 @@ public class SengledVideoIndicator extends View {
         int minute = paramCalendar.get(Calendar.MINUTE);
         int second = paramCalendar.get(Calendar.SECOND);
 
-        int height = dotTextMap.get(key);
+        int height = 0;
+        if (dotTextMap.get(key) != null){
+            height = dotTextMap.get(key);
+        }
+
 
         int smallSecond = minute*60 + second;
         long hourSecond=3600; // 一小时总秒数
