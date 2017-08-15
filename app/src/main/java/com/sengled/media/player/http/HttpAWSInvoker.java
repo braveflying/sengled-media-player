@@ -34,4 +34,8 @@ public class HttpAWSInvoker {
     public Call<List<PlaybackDto>> fetchPlaybackList(String token, String date){
         return service.fetchPlaybackList(token, date);
     }
+
+    public Call<Map<String,String>> fetchTalkbackUrl(String id, String uid){
+        return service.fetchTalkbackUrl(id, uid);
+    }
 }

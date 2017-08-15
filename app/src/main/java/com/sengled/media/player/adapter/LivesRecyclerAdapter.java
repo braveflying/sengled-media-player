@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.ContextCompat;
@@ -219,6 +220,7 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
                     break;
                 case SLSMediaPlayer.ERROR_CODE_EMPTY_PLAYLIST:
                     showTips("Empty playlist !");
+                    isNeedReconnect = true;
                     break;
                 case SLSMediaPlayer.ERROR_CODE_STREAM_DISCONNECTED:
                     showTips("Stream disconnected !");
@@ -245,6 +247,9 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
                 default:
                     showTips("unknown error !");
                     break;
+            }
+            if (isNeedReconnect){
+                player.start();
             }
 
             return true;
@@ -318,6 +323,10 @@ public class LivesRecyclerAdapter extends RecyclerView.Adapter<LivesRecyclerAdap
             intent.setClass(mContext, TalkbackActivity.class);
             mContext.startActivity(intent);*/
             TalkBackDialog talkBackDialog = new TalkBackDialog();
+            Bundle bundle = new Bundle();
+            bundle.putString("deviceId", lives.getId());
+            bundle.putString("token", lives.getToken());
+            talkBackDialog.setArguments(bundle);
             talkBackDialog.show(((Activity)mContext).getFragmentManager(), "hello");
         }
 

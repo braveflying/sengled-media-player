@@ -16,6 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.bjbj.slsijk.player.MediaPlayHelper;
 import com.bjbj.slsijk.player.widget.SLSVideoTextureView;
 import com.sengled.media.player.R;
 import com.sengled.media.player.widget.timeaxis.AxisMotion;
@@ -59,6 +60,7 @@ public class SengledVideoIndicator extends View {
 
     private Set<String> timePoint = new HashSet<>(); //包含视频的时间点
     private LinkedHashMap<String, Integer> dotTextMap = new LinkedHashMap<>(); // 字符串时间文字,及高度
+    private MediaPlayHelper playHelper;
 
     private Paint linePaint,textPaint,bgPain,motionPaint,footPaint;
     private View referView; // 播放线
@@ -89,6 +91,10 @@ public class SengledVideoIndicator extends View {
     public void setMotionBeanList(List<AxisMotion> axisMotionList){
         this.axisMotionList = axisMotionList;
         invalidate();
+    }
+
+    public void setPlayHelper(MediaPlayHelper playHelper) {
+        this.playHelper = playHelper;
     }
 
     public void setReferView(View referView) {
@@ -385,8 +391,12 @@ public class SengledVideoIndicator extends View {
         public void handleMessage(Message msg) {
             seekToSecond = (Long) msg.obj;
             //mPlayer.seekTo(seekToSecond*1000);
-            String url = String.format("%s&start=%s",curPlayVideo.getVideoPath(),seekToSecond);
-            mPlayer.setVideoPath(url);
+            //String url = String.format("%s&start=%s",curPlayVideo.getVideoPath(),seekToSecond);
+            //mPlayer.setVideoPath(url);
+            Calendar seekDate = Calendar.getInstance();
+            seekDate.setTime(curPlayVideo.getStartTime());
+            seekDate.add(Calendar.SECOND, (int) seekToSecond);
+            playHelper.startPlayback(seekDate.getTime());
         }
     };
     /**

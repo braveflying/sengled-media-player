@@ -12,10 +12,12 @@ public interface Const {
 
     static final String SESSION_ID ="JSESSIONID";
 
+    static final String USER_INFO ="USERINFO";
+
     static final String CAMERA_BASE_URL = "http://jx1.snap.test.cloud.sengled.com:8000/camera/";
 
     //Debug环境
-/*    static final String AWS_BASE_URL = "http://10.100.102.21:8080";
+    /*static final String AWS_BASE_URL = "http://10.100.102.21:8080";
     static final String MEDIA_SERVER_URL_220 = "http://10.100.102.29:8888/media/streams";
     static final String MEDIA_SERVER_RTSP_ADDR_220="rtsps://10.100.102.29:1554";
     static final String PREVIEW_IMAGE_PREFIX_PATH= Const.AWS_BASE_URL+"/amazon-storage/screenshot/";
@@ -31,6 +33,9 @@ public interface Const {
     static final String PREVIEW_IMAGE_SUFFIX_PATH="_small.jpg";
 
     static final List<String> includeTokens = Arrays.asList(
+            "B71BC0E360AFDECFEE5000C6A506C1E2",
+
+
             "2C388789E39BFEFF86B5F63511E05A45",
             "EAFA73C46E69A76FD88C2BC0E2B5C3DF",
             "7947B6B48864E301AC3064E426F33403",
@@ -49,6 +54,7 @@ public interface Const {
     );
 
     static final String[] testUrls= new String[]{
+            "http://10.100.102.21:8080/amazon-storage/playback/596E5F0287F5A91213275F3D47AA0285.flv?t=20170808215635&duration=1447&start=0"
             /*"http://192.168.1.100:9000/gongfu.mp4",
             "http://192.168.1.100:9000/merge-190454.flv",
             "rtmp://live.hkstv.hk.lxdns.com/live/hks"*/

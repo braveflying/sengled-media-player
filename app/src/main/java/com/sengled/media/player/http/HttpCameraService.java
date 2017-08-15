@@ -1,5 +1,7 @@
 package com.sengled.media.player.http;
 
+import com.sengled.media.player.entity.UserInfoDto;
+
 import java.util.Map;
 
 import retrofit2.Call;
@@ -18,7 +20,7 @@ public interface HttpCameraService {
 
     @Headers({"Content-Type: application/json","Accept: application/json"})
     @POST("v1/customer/login.json")
-    Call<Object> login(@Body Map<String, Object> params);
+    Call<UserInfoDto> login(@Body Map<String, Object> params);
 
     @Headers({"Content-Type: application/json","Accept: application/json"})
     @POST("ipc/startStopVoiceTransfer.json")

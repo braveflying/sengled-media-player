@@ -2,7 +2,9 @@ package com.sengled.media.player.http;
 
 import com.sengled.media.player.entity.PlaybackDto;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -18,4 +20,8 @@ public interface HttpAWSService {
     @Headers({"Accept: application/json"})
     @GET("/amazon-storage/playback/{token}.list")
     Call<List<PlaybackDto>> fetchPlaybackList(@Path("token") String token, @Query("t") String date);
+
+    @Headers({"Accept: application/json"})
+    @GET("/amazon-storage/media/getTalkbackUrl")
+    Call<Map<String,String>> fetchTalkbackUrl(@Query("token")String id, @Query("uid") String uid);
 }

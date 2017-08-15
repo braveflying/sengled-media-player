@@ -1,37 +1,31 @@
 package com.sengled.media.player.activity;
 
-import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ScrollView;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.bjbj.slsijk.player.AVOptions;
+import com.bjbj.slsijk.player.MediaPlayHelper;
 import com.bjbj.slsijk.player.SLSMediaPlayer;
+import com.bjbj.slsijk.player.common.MediaPlayerDto;
 import com.bjbj.slsijk.player.widget.SLSVideoTextureView;
 import com.sengled.media.player.R;
+import com.sengled.media.player.common.Const;
 import com.sengled.media.player.event.PlaybackEvent;
-import com.sengled.media.player.http.HttpAWSInvoker;
 import com.sengled.media.player.task.RequestPlaybackMarkTask;
 import com.sengled.media.player.task.RequestPlaybackMotionTask;
-import com.sengled.media.player.task.RequestPlaybackVideoTask;
 import com.sengled.media.player.widget.ObservableScrollView;
-import com.sengled.media.player.widget.SegScrollView;
 import com.sengled.media.player.widget.SengledVideoIndicator;
 import com.sengled.media.player.widget.timeaxis.AxisMotion;
 import com.sengled.media.player.widget.timeaxis.AxisVideo;
@@ -42,7 +36,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -77,6 +73,8 @@ public class VideoPlaybackActivity extends AppCompatActivity {
 
     private String token; // 设备token
     private String checkDate; //当前选择的回放日期
+    private MediaPlayHelper playHelper;
+    private List<DateData> dotList = new ArrayList<>();
 
     private void initVideoPlayer(SLSVideoTextureView videoView){
         AVOptions options = new AVOptions();
@@ -109,7 +107,9 @@ public class VideoPlaybackActivity extends AppCompatActivity {
         initLayout();
         initBaseLineTextSwitcher();
         initVideoPlayer(playView); // 初始化播放器
+        initVideoIndicator();
         initEvent();
+
     }
 
     @Override
@@ -123,8 +123,33 @@ public class VideoPlaybackActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        RequestPlaybackMarkTask task = new RequestPlaybackMarkTask();
-        task.execute();
+        /*RequestPlaybackMarkTask task = new RequestPlaybackMarkTask();
+        task.execute();*/
+
+        token = getIntent().getStringExtra("token");
+        playHelper.loadBaseData(110, new MediaPlayHelper.MediaCallback<Collection<String>>() {
+            @Override
+            public void onSuccess(Collection<String> manifestDtos) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                DateData markDate = null;
+                Calendar calendar = Calendar.getInstance();
+                for (String s : manifestDtos) {
+                    try {
+                        calendar.setTime(sdf.parse(s));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    markDate = new DateData(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, calendar.get(Calendar.DAY_OF_MONTH));
+                    dotList.add(markDate);
+                }
+                markDot();
+            }
+
+            @Override
+            public void onFail(Throwable throwable) {
+                System.out.println(throwable);
+            }
+        });
     }
 
     @Override
@@ -162,14 +187,27 @@ public class VideoPlaybackActivity extends AppCompatActivity {
         textSwitcher = (TextSwitcher) findViewById(R.id.media_baseline_text);
         countInfoView = (TextView) findViewById(R.id.media_video_playback_count_info);
 
+        CellConfig.Month2WeekPos = CellConfig.middlePosition;
+        CellConfig.ifMonth = false;
+        expCalendarView.shrink();
+    }
+
+    private void initVideoIndicator(){
+        playHelper = new MediaPlayHelper(playView, Const.AWS_BASE_URL);
         videoIndicator.setmLoadingView(mLoadingView);
         videoIndicator.setmPlayer(playView);
         videoIndicator.setScrollView(scrollView);
         videoIndicator.setReferView(playReferLine);
+        videoIndicator.setPlayHelper(playHelper);
+    }
 
-        CellConfig.Month2WeekPos = CellConfig.middlePosition;
-        CellConfig.ifMonth = false;
-        expCalendarView.shrink();
+    /**
+     * 标记日期是否有回放视频
+     */
+    private void markDot(){
+        for (DateData dateData : dotList) {
+            expCalendarView.markDate(dateData.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN)));
+        }
     }
 
     private void initEvent(){
@@ -257,24 +295,67 @@ public class VideoPlaybackActivity extends AppCompatActivity {
 
         Set<DateData> removeSet = new HashSet<>();
         for (DateData dateData : markedDates.getAll()) {
-            if (dateData.getMarkStyle().getStyle() == MarkStyle.BACKGROUND){
+            if (dotList.contains(dateData)){
+                dateData.setMarkStyle(MarkStyle.DOT, Color.GREEN);
+            }else{
                 removeSet.add(dateData);
             }
         }
         for (DateData dateData : removeSet) {
             markedDates.remove(dateData);
         }
+        markedDates.remove(date);
+        date.setMarkStyle(MarkStyle.BACKGROUND, Color.parseColor("#FBC19B"));
+        expCalendarView.markDate(date);
+        //expCalendarView.markDate(date.setMarkStyle(new MarkStyle()));
 
-        expCalendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.parseColor("#FBC19B"))));
         curYM.setText(String.format("%s年%s月",date.getYear(),date.getMonth()));
 
         playView.stopPlayback();
 
-        token = getIntent().getStringExtra("token");
         checkDate = String.format("%d-%s-%s",date.getYear(),date.getMonthString(),date.getDayString());
 
-        new RequestPlaybackVideoTask(getApplication()).execute(token,checkDate);
+        //new RequestPlaybackVideoTask(getApplication()).execute(token,checkDate);
+        requestAwsData(token, checkDate);
         new RequestPlaybackMotionTask(getApplication()).execute();
+    }
+
+    private void requestAwsData(String token, String checkDate){
+        playHelper.loadAWSData(token, checkDate, new MediaPlayHelper.MediaCallback<List<MediaPlayerDto.PlaybackDto>>() {
+            @Override
+            public void onSuccess(List<MediaPlayerDto.PlaybackDto> list) {
+                List<AxisVideo> axisVideos = toAxisVideo(list);
+
+                countInfoView.setText(String.format("%d video files", axisVideos.size()));
+                videoIndicator.setVideoBeanData(axisVideos);
+                playbackList = axisVideos;
+                videoIndicator.playVideo(null);
+            }
+
+            @Override
+            public void onFail(Throwable throwable) { }
+        });
+    }
+
+    private List<AxisVideo> toAxisVideo(List<MediaPlayerDto.PlaybackDto> list){
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        List<AxisVideo> retList = new ArrayList<AxisVideo>();
+        Calendar calendar = Calendar.getInstance();
+        for (MediaPlayerDto.PlaybackDto playbackDto : list) {
+            AxisVideo axisVideo = new AxisVideo();
+            axisVideo.setVideoPath(Const.AWS_BASE_URL+playbackDto.getUri());
+            try {
+                Date startTime = formatter.parse(playbackDto.getTime());
+                axisVideo.setStartTime(startTime);
+                calendar.setTime(startTime);
+                calendar.add(Calendar.SECOND, playbackDto.getDuration());
+                axisVideo.setEndTime(calendar.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            retList.add(axisVideo);
+        }
+        return retList;
     }
 
     private void initBaseLineTextSwitcher(){

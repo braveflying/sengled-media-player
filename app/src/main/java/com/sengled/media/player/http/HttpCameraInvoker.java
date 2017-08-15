@@ -2,6 +2,8 @@ package com.sengled.media.player.http;
 
 import android.content.Context;
 
+import com.sengled.media.player.entity.UserInfoDto;
+
 import java.util.Map;
 
 import retrofit2.Call;
@@ -27,7 +29,7 @@ public class HttpCameraInvoker {
         return invoker;
     }
 
-    public Call<Object> doLogin(Map<String, Object> params){
+    public Call<UserInfoDto> doLogin(Map<String, Object> params){
         return service.login(params);
     }
 

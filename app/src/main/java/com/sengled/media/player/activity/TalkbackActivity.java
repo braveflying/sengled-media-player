@@ -1,6 +1,7 @@
 package com.sengled.media.player.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -171,31 +172,10 @@ public class TalkbackActivity extends AppCompatActivity {
     private void startRecorder(){
         String sessionId = ConfigUtils.getInstance(this).getConfig(Const.SESSION_ID);
         if (sessionId == null || sessionId.isEmpty()){
-            login();
+            startActivity(new Intent(this, LoginActivity.class));
+            this.finish();
         }
         startTalkback();
-    }
-
-    private void login(){
-        Map<String, Object> loginMap = new HashMap<String,Object>();
-        loginMap.put("uuid","3fb5e2c7142de21c");
-        loginMap.put("os_type" , "ios");
-        loginMap.put("user" , "las@sengled.com");
-        loginMap.put("pwd" ,123456);
-        Call<Object> caller = HttpCameraInvoker.getInvoker(this).doLogin(loginMap);
-        caller.enqueue(new Callback<Object>() {
-            @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
-                Map<String, String> body = (Map<String, String>) response.body();
-                String sessionId = body.get("jsessionid");
-                ConfigUtils.getInstance(TalkbackActivity.this).saveConfig(Const.SESSION_ID,sessionId);
-            }
-
-            @Override
-            public void onFailure(Call<Object> call, Throwable t) {
-                System.out.println(t.getMessage());
-            }
-        });
     }
 
     private int deviceid1 = 10637;

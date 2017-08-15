@@ -42,20 +42,21 @@ public class RequestLivingTask extends AsyncTask<String,Void,List<Lives>> {
                 JSONObject live = jsonArray.optJSONObject(i);
                 Lives lives = new Lives(live,Const.MEDIA_SERVER_RTSP_ADDR_220,Const.PREVIEW_IMAGE_PREFIX_PATH, Const.PREVIEW_IMAGE_SUFFIX_PATH);
 
-                if (Const.includeTokens.contains(lives.getToken())){
+                liveList.add(lives);
+                /*if (Const.includeTokens.contains(lives.getToken())){
                     liveList.add(lives);
-                };
+                };*/
             }
             Log.i("Player221",livingList);
 
             //=====================
-            /*for (String testUrl : Const.testUrls) {
+            for (String testUrl : Const.testUrls) {
                 Lives videolives = new Lives(null,testUrl, Const.PREVIEW_IMAGE_PREFIX_PATH, Const.PREVIEW_IMAGE_SUFFIX_PATH);
                 liveList.add(videolives);
-            }*/
+            }
             //========end=============
 
-            String livingList221 = HttpUtils.getInstance().get(Const.MEDIA_SERVER_URL_221);
+            /*String livingList221 = HttpUtils.getInstance().get(Const.MEDIA_SERVER_URL_221);
             JSONArray jsonArray221 = new JSONArray(livingList221);
             for (int j = 0; j < jsonArray221.length(); j++) {
                 JSONObject live = jsonArray221.optJSONObject(j);
@@ -63,7 +64,7 @@ public class RequestLivingTask extends AsyncTask<String,Void,List<Lives>> {
                 if (Const.includeTokens.contains(lives.getToken())){
                     liveList.add(lives);
                 };
-            }
+            }*/
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {
